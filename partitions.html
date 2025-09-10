@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Young Diagrams</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+        background-color: white;
+        color: black;
+      }
+      #controls {
+        margin-bottom: 20px;
+      }
+      canvas {
+        margin: 10px;
+        border: 1px solid #ccc;
+      }
+      .diagram {
+        display: inline-block;
+        margin: 10px;
+        vertical-align: top;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: #1a1a1a;
+          color: white;
+        }
+        canvas {
+          border: 1px solid #666;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="controls">
+      <label for="number">Enter N: </label>
+      <input type="number" id="number" value="5" min="1" />
+      <button onclick="drawDiagrams()">Go</button>
+    </div>
+    <div id="output"></div>
+
+    <script>
+      // Generate all partitions of n
+      function partitions(n, max = n) {
+        if (n === 0) return [[]];
+        let result = [];
+        for (let i = Math.min(max, n); i >= 1; i--) {
+          for (let rest of partitions(n - i, i)) {
+            result.push([i, ...rest]);
+          }
+        }
+        return result;
+      }
+
+      const colors = [
+        "#FF595E",
+        "#FFCA3A",
+        "#8AC926",
+        "#1982C4",
+        "#6A4C93",
+        "#FF924C",
+        "#FF4D6D",
+        "#4CAF50",
+      ];
+
+      function drawDiagram(ctx, partition, cellSize = 20) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        for (let row = 0; row < partition.length; row++) {
+          for (let col = 0; col < partition[row]; col++) {
+            ctx.fillStyle = colors[(row + col) % colors.length];
+            ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+            ctx.strokeRect(col * cellSize, row * cellSize, cellSize, cellSize);
+          }
+        }
+      }
+
+      function drawDiagrams() {
+        const N = parseInt(document.getElementById("number").value);
+        const parts = partitions(N);
+        const output = document.getElementById("output");
+        output.innerHTML = ""; // clear old
+
+        for (let part of parts) {
+          const maxCols = Math.max(...part);
+          const canvas = document.createElement("canvas");
+          canvas.width = maxCols * 22;
+          canvas.height = part.length * 22;
+          const ctx = canvas.getContext("2d");
+          drawDiagram(ctx, part);
+          const div = document.createElement("div");
+          div.className = "diagram";
+          div.appendChild(canvas);
+          div.appendChild(document.createElement("br"));
+          div.appendChild(document.createTextNode(JSON.stringify(part)));
+          output.appendChild(div);
+        }
+      }
+    </script>
+  </body>
+</html>
