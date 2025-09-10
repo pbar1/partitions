@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Young Diagrams</title>
+    <title>Integer Partitions</title>
     <style>
       body {
         font-family: sans-serif;
@@ -55,7 +55,12 @@
       <label for="number">Enter N: </label>
       <input type="number" id="number" value="5" min="1" />
       <label for="modulus">Mod (optional): </label>
-      <input type="number" id="modulus" min="2" placeholder="leave empty for no mod" />
+      <input
+        type="number"
+        id="modulus"
+        min="2"
+        placeholder="leave empty for no mod"
+      />
       <label>
         <input type="checkbox" id="showConjugates" />
         Show conjugate partitions
@@ -95,7 +100,7 @@
         const maxPart = partition[0];
         const result = [];
         for (let i = 1; i <= maxPart; i++) {
-          result.push(partition.filter(part => part >= i).length);
+          result.push(partition.filter((part) => part >= i).length);
         }
         return result;
       }
@@ -144,7 +149,8 @@
         const N = parseInt(document.getElementById("number").value);
         const modulusInput = document.getElementById("modulus").value;
         const modulus = modulusInput ? parseInt(modulusInput) : null;
-        const showConjugates = document.getElementById("showConjugates").checked;
+        const showConjugates =
+          document.getElementById("showConjugates").checked;
         const onlyShowN = document.getElementById("onlyShowN").checked;
         const reverseOrder = document.getElementById("reverseOrder").checked;
         const onlySymmetric = document.getElementById("onlySymmetric").checked;
@@ -153,14 +159,18 @@
 
         // Apply modulus to the base number and all numbers in range
         let effectiveN = modulus ? N % modulus : N;
-        let numbersToShow = onlyShowN ? [effectiveN] : Array.from({length: effectiveN}, (_, i) => i + 1);
-        
+        let numbersToShow = onlyShowN
+          ? [effectiveN]
+          : Array.from({ length: effectiveN }, (_, i) => i + 1);
+
         // If modulus is applied and we're showing all numbers, also apply modulus to each
         if (modulus && !onlyShowN) {
-          const originalNumbers = Array.from({length: N}, (_, i) => i + 1);
-          numbersToShow = [...new Set(originalNumbers.map(n => n % modulus))].filter(n => n > 0).sort((a, b) => a - b);
+          const originalNumbers = Array.from({ length: N }, (_, i) => i + 1);
+          numbersToShow = [...new Set(originalNumbers.map((n) => n % modulus))]
+            .filter((n) => n > 0)
+            .sort((a, b) => a - b);
         }
-        
+
         // Default is descending (highest first), reverse if checkbox is checked
         if (!reverseOrder) {
           numbersToShow = numbersToShow.reverse();
@@ -169,11 +179,11 @@
         for (let i = 0; i < numbersToShow.length; i++) {
           const currentN = numbersToShow[i];
           let parts = partitions(currentN);
-          
+
           if (!showConjugates) {
             parts = parts.filter(isCanonical);
           }
-          
+
           if (onlySymmetric) {
             parts = parts.filter(isSymmetric);
           }
@@ -186,8 +196,13 @@
           title.className = "number-title";
           if (modulus && !onlyShowN) {
             // Show which original numbers map to this modulus result
-            const originalNumbers = Array.from({length: N}, (_, i) => i + 1).filter(n => n % modulus === currentN);
-            title.textContent = `Partitions of ${currentN} (from ${originalNumbers.join(', ')} mod ${modulus})`;
+            const originalNumbers = Array.from(
+              { length: N },
+              (_, i) => i + 1
+            ).filter((n) => n % modulus === currentN);
+            title.textContent = `Partitions of ${currentN} (from ${originalNumbers.join(
+              ", "
+            )} mod ${modulus})`;
           } else if (modulus) {
             title.textContent = `Partitions of ${currentN} (${N} mod ${modulus})`;
           } else {
@@ -222,20 +237,24 @@
       }
 
       // Add enter key listener to the number and modulus inputs
-      document.getElementById("number").addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-          drawDiagrams();
-        }
-      });
-      
-      document.getElementById("modulus").addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-          drawDiagrams();
-        }
-      });
+      document
+        .getElementById("number")
+        .addEventListener("keypress", function (event) {
+          if (event.key === "Enter") {
+            drawDiagrams();
+          }
+        });
+
+      document
+        .getElementById("modulus")
+        .addEventListener("keypress", function (event) {
+          if (event.key === "Enter") {
+            drawDiagrams();
+          }
+        });
 
       // Add global enter key listener and number input capture
-      document.addEventListener("keydown", function(event) {
+      document.addEventListener("keydown", function (event) {
         if (event.key === "Enter") {
           drawDiagrams();
         } else if (/^[0-9]$/.test(event.key)) {
