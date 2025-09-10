@@ -68,6 +68,10 @@
         <input type="checkbox" id="reverseOrder" />
         Show ascending order
       </label>
+      <label>
+        <input type="checkbox" id="onlySymmetric" />
+        Only show symmetric partitions
+      </label>
       <button onclick="drawDiagrams()">Go</button>
     </div>
     <div id="output"></div>
@@ -102,6 +106,16 @@
         return partition[0] >= partition.length;
       }
 
+      // Check if partition is symmetric (equals its conjugate)
+      function isSymmetric(partition) {
+        const conj = conjugate(partition);
+        if (partition.length !== conj.length) return false;
+        for (let i = 0; i < partition.length; i++) {
+          if (partition[i] !== conj[i]) return false;
+        }
+        return true;
+      }
+
       const colors = [
         "#FF595E",
         "#FFCA3A",
@@ -131,6 +145,7 @@
         const showConjugates = document.getElementById("showConjugates").checked;
         const onlyShowN = document.getElementById("onlyShowN").checked;
         const reverseOrder = document.getElementById("reverseOrder").checked;
+        const onlySymmetric = document.getElementById("onlySymmetric").checked;
         const output = document.getElementById("output");
         output.innerHTML = ""; // clear old
 
@@ -155,6 +170,10 @@
           
           if (!showConjugates) {
             parts = parts.filter(isCanonical);
+          }
+          
+          if (onlySymmetric) {
+            parts = parts.filter(isSymmetric);
           }
 
           // Add section for this number
