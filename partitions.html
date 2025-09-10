@@ -22,6 +22,19 @@
         margin: 10px;
         vertical-align: top;
       }
+      .number-section {
+        margin: 20px 0;
+      }
+      .number-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 10px 0;
+      }
+      .separator {
+        border: none;
+        border-top: 2px solid #ccc;
+        margin: 15px 0;
+      }
 
       @media (prefers-color-scheme: dark) {
         body {
@@ -31,6 +44,9 @@
         canvas {
           border: 1px solid #666;
         }
+        .separator {
+          border-top-color: #666;
+        }
       }
     </style>
   </head>
@@ -38,9 +54,19 @@
     <div id="controls">
       <label for="number">Enter N: </label>
       <input type="number" id="number" value="5" min="1" />
+      <label for="modulus">Mod (optional): </label>
+      <input type="number" id="modulus" min="2" placeholder="leave empty for no mod" />
       <label>
-        <input type="checkbox" id="hideConjugates" />
-        Hide conjugate partitions
+        <input type="checkbox" id="showConjugates" />
+        Show conjugate partitions
+      </label>
+      <label>
+        <input type="checkbox" id="onlyShowN" />
+        Only show N
+      </label>
+      <label>
+        <input type="checkbox" id="reverseOrder" />
+        Show ascending order
       </label>
       <button onclick="drawDiagrams()">Go</button>
     </div>
@@ -100,31 +126,92 @@
 
       function drawDiagrams() {
         const N = parseInt(document.getElementById("number").value);
-        const hideConjugates = document.getElementById("hideConjugates").checked;
-        let parts = partitions(N);
-        
-        if (hideConjugates) {
-          parts = parts.filter(isCanonical);
-        }
-        
+        const modulusInput = document.getElementById("modulus").value;
+        const modulus = modulusInput ? parseInt(modulusInput) : null;
+        const showConjugates = document.getElementById("showConjugates").checked;
+        const onlyShowN = document.getElementById("onlyShowN").checked;
+        const reverseOrder = document.getElementById("reverseOrder").checked;
         const output = document.getElementById("output");
         output.innerHTML = ""; // clear old
 
-        for (let part of parts) {
-          const maxCols = Math.max(...part);
-          const canvas = document.createElement("canvas");
-          canvas.width = maxCols * 22;
-          canvas.height = part.length * 22;
-          const ctx = canvas.getContext("2d");
-          drawDiagram(ctx, part);
-          const div = document.createElement("div");
-          div.className = "diagram";
-          div.appendChild(canvas);
-          div.appendChild(document.createElement("br"));
-          div.appendChild(document.createTextNode(JSON.stringify(part)));
-          output.appendChild(div);
+        // Apply modulus to the base number and all numbers in range
+        let effectiveN = modulus ? N % modulus : N;
+        let numbersToShow = onlyShowN ? [effectiveN] : Array.from({length: effectiveN}, (_, i) => i + 1);
+        
+        // If modulus is applied and we're showing all numbers, also apply modulus to each
+        if (modulus && !onlyShowN) {
+          const originalNumbers = Array.from({length: N}, (_, i) => i + 1);
+          numbersToShow = [...new Set(originalNumbers.map(n => n % modulus))].filter(n => n > 0).sort((a, b) => a - b);
+        }
+        
+        // Default is descending (highest first), reverse if checkbox is checked
+        if (!reverseOrder) {
+          numbersToShow = numbersToShow.reverse();
+        }
+
+        for (let i = 0; i < numbersToShow.length; i++) {
+          const currentN = numbersToShow[i];
+          let parts = partitions(currentN);
+          
+          if (!showConjugates) {
+            parts = parts.filter(isCanonical);
+          }
+
+          // Add section for this number
+          const section = document.createElement("div");
+          section.className = "number-section";
+
+          const title = document.createElement("div");
+          title.className = "number-title";
+          if (modulus && !onlyShowN) {
+            // Show which original numbers map to this modulus result
+            const originalNumbers = Array.from({length: N}, (_, i) => i + 1).filter(n => n % modulus === currentN);
+            title.textContent = `Partitions of ${currentN} (from ${originalNumbers.join(', ')} mod ${modulus})`;
+          } else if (modulus) {
+            title.textContent = `Partitions of ${currentN} (${N} mod ${modulus})`;
+          } else {
+            title.textContent = `Partitions of ${currentN}`;
+          }
+          section.appendChild(title);
+
+          for (let part of parts) {
+            const maxCols = Math.max(...part);
+            const canvas = document.createElement("canvas");
+            canvas.width = maxCols * 22;
+            canvas.height = part.length * 22;
+            const ctx = canvas.getContext("2d");
+            drawDiagram(ctx, part);
+            const div = document.createElement("div");
+            div.className = "diagram";
+            div.appendChild(canvas);
+            div.appendChild(document.createElement("br"));
+            div.appendChild(document.createTextNode(JSON.stringify(part)));
+            section.appendChild(div);
+          }
+
+          output.appendChild(section);
+
+          // Add separator except after the last section
+          if (i < numbersToShow.length - 1) {
+            const separator = document.createElement("hr");
+            separator.className = "separator";
+            output.appendChild(separator);
+          }
         }
       }
+
+      // Add enter key listener to the number and modulus inputs
+      document.getElementById("number").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+          drawDiagrams();
+        }
+      });
+      
+      document.getElementById("modulus").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+          drawDiagrams();
+        }
+      });
     </script>
   </body>
 </html>
