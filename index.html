@@ -77,6 +77,10 @@
         <input type="checkbox" id="onlySymmetric" />
         Only show symmetric partitions
       </label>
+      <label>
+        <input type="checkbox" id="shortestSymmetric" />
+        Only show shortest symmetric partitions
+      </label>
       <button onclick="drawDiagrams()">Go</button>
     </div>
     <div id="output"></div>
@@ -154,6 +158,7 @@
         const onlyShowN = document.getElementById("onlyShowN").checked;
         const reverseOrder = document.getElementById("reverseOrder").checked;
         const onlySymmetric = document.getElementById("onlySymmetric").checked;
+        const shortestSymmetric = document.getElementById("shortestSymmetric").checked;
         const output = document.getElementById("output");
         output.innerHTML = ""; // clear old
 
@@ -186,6 +191,16 @@
 
           if (onlySymmetric) {
             parts = parts.filter(isSymmetric);
+          }
+
+          if (shortestSymmetric) {
+            const symmetricParts = parts.filter(isSymmetric);
+            if (symmetricParts.length > 0) {
+              const minLength = Math.min(...symmetricParts.map(p => p.length));
+              parts = symmetricParts.filter(p => p.length === minLength);
+            } else {
+              parts = [];
+            }
           }
 
           // Add section for this number
