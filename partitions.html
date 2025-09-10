@@ -130,8 +130,10 @@
       function drawDiagram(ctx, partition, cellSize = 20) {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         for (let row = 0; row < partition.length; row++) {
-          ctx.fillStyle = colors[row % colors.length];
           for (let col = 0; col < partition[row]; col++) {
+            // Color based on the minimum of row and column (creates concentric layers)
+            const layer = Math.min(row, col);
+            ctx.fillStyle = colors[layer % colors.length];
             ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
             ctx.strokeRect(col * cellSize, row * cellSize, cellSize, cellSize);
           }
@@ -229,6 +231,21 @@
       document.getElementById("modulus").addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
           drawDiagrams();
+        }
+      });
+
+      // Add global enter key listener and number input capture
+      document.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+          drawDiagrams();
+        } else if (/^[0-9]$/.test(event.key)) {
+          // If a number key is pressed and we're not already focused on an input
+          if (document.activeElement.tagName !== "INPUT") {
+            const numberInput = document.getElementById("number");
+            numberInput.value = event.key; // Replace existing value
+            numberInput.focus();
+            event.preventDefault();
+          }
         }
       });
     </script>
