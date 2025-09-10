@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Integer Partitions</title>
     <style>
       body {
@@ -36,6 +37,60 @@
         margin: 15px 0;
       }
 
+      @media (max-width: 768px) {
+        body {
+          margin: 10px;
+          font-size: 14px;
+        }
+        
+        #controls {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          margin-bottom: 15px;
+        }
+        
+        #controls label {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 14px;
+        }
+        
+        #controls input[type="number"] {
+          width: 80px;
+          padding: 8px;
+          font-size: 16px; /* Prevents zoom on iOS */
+        }
+        
+        #controls input[type="checkbox"] {
+          transform: scale(1.2);
+        }
+        
+        button {
+          padding: 12px 20px;
+          font-size: 16px;
+          background-color: #007AFF;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+        }
+        
+        .diagram {
+          margin: 5px;
+        }
+        
+        canvas {
+          max-width: 100%;
+          height: auto;
+        }
+        
+        .number-title {
+          font-size: 16px;
+        }
+      }
+
       @media (prefers-color-scheme: dark) {
         body {
           background-color: #1a1a1a;
@@ -46,6 +101,9 @@
         }
         .separator {
           border-top-color: #666;
+        }
+        button {
+          background-color: #0A84FF;
         }
       }
     </style>
